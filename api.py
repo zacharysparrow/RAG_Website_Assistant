@@ -72,9 +72,9 @@ def search_documents(query: str) -> DocumentResponse:
 #        return {"error": str(e), "status": "failed", "documents": [], "total": 0}
 
 @app.get("/ask")
-def ask(query: str) -> AskResponse:
+def ask(query: str, session_id: str) -> AskResponse:
     try:
-        answer, context = ask_question(query)
+        answer, context = ask_question(query, session_id)
         sources = []
         for source in context:
             try:

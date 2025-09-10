@@ -6,6 +6,11 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.documents.base import Document
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_history_aware_retriever
+from langchain_core.prompts import MessagesPlaceholder
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 #from langchain_community.document_loaders.blob_loaders import Blob
 #from langchain_community.document_loaders.parsers import PyPDFParser
 import logging
@@ -31,7 +36,7 @@ chroma = Chroma(
     persist_directory="./data",
     embedding_function=embeddings,
 )
-retriever = chroma.as_retriever(search_kwargs={"k": 2})  # Retrieve top 2 relevant docs
+retriever = chroma.as_retriever(search_kwargs={"k": 3})  # Retrieve top 3 relevant docs
 
 # set up prompt template
 TEMPLATE = """
@@ -66,9 +71,44 @@ quoting context text in your response since it must not be part of the answer.
 """
 PROMPT = ChatPromptTemplate.from_template(TEMPLATE)
 
+# set up simple chat history
+contextualize_q_system_prompt = (
+    "Given a chat history and the latest user question "
+    "which might reference context in the chat history, "
+    "formulate a standalone question which can be understood "
+    "without the chat history. Do NOT answer the question, "
+    "just reformulate it if needed and otherwise return it as is."
+)
+
+contextualize_q_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", contextualize_q_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}"),
+    ]
+)
+
+history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
+
 # create retreiver and llm chains
 llm_chain = create_stuff_documents_chain(llm, PROMPT)
-retrieval_chain = create_retrieval_chain(retriever, llm_chain)
+#retrieval_chain = create_retrieval_chain(retriever, llm_chain)
+retrieval_chain = create_retrieval_chain(history_aware_retriever, llm_chain)
+
+store = {}
+
+def get_session_history(session_id: str) -> BaseChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+conversational_retrieval_chain = RunnableWithMessageHistory(
+    retrieval_chain,
+    get_session_history,
+    input_messages_key="input",
+    history_messages_key="chat_history",
+    output_messages_key="answer",
+)
 
 # core functions
 #def store_document(documents: list[Document]) -> str:
@@ -82,8 +122,8 @@ retrieval_chain = create_retrieval_chain(retriever, llm_chain)
 #    return [doc for doc in parser.lazy_parse(blob)]
 
 def retrieve_document(query: str) -> list[Document]:
-    return retriever.invoke(input=query)
+    return history_aware_retriever.invoke(input=query)
 
-def ask_question(query: str) -> str:
-    response = retrieval_chain.invoke({"input": query})
+def ask_question(query: str, session_id: str) -> str:
+    response = conversational_retrieval_chain.invoke({"input": query}, config={"configurable":{"session_id": session_id}})
     return (response["answer"], response["context"])

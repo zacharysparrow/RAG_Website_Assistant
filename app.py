@@ -1,9 +1,13 @@
 import streamlit as st
 import requests
+from streamlit.runtime.scriptrunner import get_script_run_ctx
 
-def ask(query: str) -> str:
+ctx = get_script_run_ctx()
+session_id = ctx.session_id
+
+def ask(query: str, session_id: str) -> str:
     with st.spinner("Asking the chatbot..."):
-        response = requests.get(f"{API_URL}/ask?query={query}")
+        response = requests.get(f"{API_URL}/ask?query={query}&session_id={session_id}") #ZMS
     if response.status_code == 200:
         data = response.json()
         return (data["answer"], data["sources"])
@@ -36,6 +40,7 @@ st.title("Zach's Personal AI Assistant")
 #        st.error(f"Error uploading files: {e}")
 
 # chat interface
+
 with st.chat_message(name="ai", avatar="ai"):
     st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
 
@@ -44,7 +49,7 @@ query = st.chat_input(placeholder="Type your question here...")
 if query:
     with st.chat_message("user"):
         st.write(query)
-    answer, sources = ask(query)
+    answer, sources = ask(query, session_id)
     with st.chat_message("ai"):
         st.write(answer)
 
@@ -58,8 +63,8 @@ if query:
                 filtered_sources.append(d)
 
         if filtered_sources != []:
-            st.write("For more information, please see the following:")
+            st.write("Relevant work:")
             for source in filtered_sources:
-                st.write("- " + source["authors"] + ", " + source["title"] + ", " + source["subject"] + "\n https://doi.org/" + source["doi"])
+                st.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
 
