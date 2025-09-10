@@ -1,3 +1,12 @@
+# Retrieval-Augmented Generation (RAG) Website Assistant Chatbot
+
+RAG chatbot designed to answer questions about me and my work. 
+
+for development:
+fastapi dev api.py
+streamlit run app.py
+
+
 chatbot_rag_env
 
 TODO:
