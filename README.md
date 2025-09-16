@@ -10,19 +10,23 @@ make data/ directory for the chromadb
 make documents/ directory for the documents you want the RAG to read
 
 
+PDF -> markdown done with https://www.datalab.to/playground
 
 chatbot_rag_env
 
 TODO:
+optimize chunking
+refine markdown
+add sldf paper when published
+add boxes paper when on arxiv
 fill out chromadb with:
 - all my papers
 - my website (update automatically?)
 - my CV
 - answers to common interview questions
-want to only cite papers if they are actually relevant...
-test citation robustness
+test citations again -- k > 3, delete duplicate citations?
+possible issue with assuming ambiguious context. Need to test more later.
 switch to better model after all features implemented
-test it all
 host on aws
 embed in website
 

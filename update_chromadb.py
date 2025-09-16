@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv, find_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
@@ -6,6 +7,12 @@ from langchain_core.documents.base import Document
 from langchain_community.document_loaders.blob_loaders import Blob
 #from langchain_community.document_loaders.parsers import PyPDFParser
 from langchain_community.document_loaders.pdf import PyPDFLoader
+from langchain_core.rate_limiters import InMemoryRateLimiter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_pymupdf4llm import PyMuPDF4LLMLoader
+from langchain_text_splitters import MarkdownHeaderTextSplitter
+
+import time
 import logging
 
 # error loggings
@@ -19,7 +26,12 @@ if not GEMINI_API_KEY:
     logger.error("GEMINI_API_KEY is not set")
     raise ValueError("GEMINI_API_KEY is not set")
 
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", task_type="QUESTION_ANSWERING", google_api_key=GEMINI_API_KEY)
+rate_limiter = InMemoryRateLimiter(
+    requests_per_second=1,  # <-- Super slow! 
+    max_bucket_size=1,  # Controls the maximum burst size.
+)
+
+embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", task_type="QUESTION_ANSWERING", google_api_key=GEMINI_API_KEY, rate_limiter=rate_limiter)
 
 # set up chroma vector database
 chroma = Chroma(
@@ -46,11 +58,40 @@ for filename in os.listdir(docs_path):
     if filename.endswith('.pdf'):
         pdf_files.append(os.path.join(docs_path, filename))
 
+headers_to_split_on = [
+    ("#", "Header 1"),
+    ("##", "Header 2"),
+    ("###", "Header 3"),
+]
+
 # checking for duplicate file names and adding
 for doc in pdf_files:
-    loader = PyPDFLoader(doc)
-    content = loader.load()
+    loader = PyMuPDF4LLMLoader(
+        file_path=doc,
+        mode="single",
+        pages_delimiter=" "
+    )    
+    content = loader.load()[0] #content isn't being loaded with headers
+
     if doc not in loaded_doc_names: 
+        tic = time.time()
+        print(f"Adding {doc}...")
+        markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on, strip_headers=False)
+        texts = markdown_splitter.split_text(content.page_content)
+        chunk_size = 1000
+        chunk_overlap = chunk_size*0.1
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, length_function=len, is_separator_regex=False, separators=['. ']
+        )
+        all_text = []
+        for t in texts:
+            all_text.append(text_splitter.split_text(t.page_content))
+        all_texts = [re.sub('(.)\n(?! \n)', r'\1 ', item[2:]+".") for sublist in all_text for item in sublist]
+        for t in all_texts:
+             print("")
+             print(t)
+#            status = store_document(Document(page_content=t, metadata=content.metadata))
+        toc = time.time()
         print(f"{doc} added to database.")
-        status = store_document(content)
+        print(toc - tic)
 

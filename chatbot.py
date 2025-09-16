@@ -2,15 +2,17 @@ import os
 from dotenv import load_dotenv, find_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
+from langchain_core.messages import BaseMessage
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.documents.base import Document
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import MessagesPlaceholder
-from langchain_community.chat_message_histories import ChatMessageHistory
+#from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from pydantic import BaseModel, Field
 #from langchain_community.document_loaders.blob_loaders import Blob
 #from langchain_community.document_loaders.parsers import PyPDFParser
 import logging
@@ -61,7 +63,7 @@ context using bullet points "-".
 If you cannot find a direct answer based on the provided context, outline the most relevant points
 that give hints to the answer of the question.
 
-If no answer or relevant points can be found, or the question is not related to the context, simply
+If no answer or relevant points can be found, the question is not related to the context, simply
 state the following sentence without any additional text:
 
 I couldn't find an answer to your question.
@@ -72,13 +74,13 @@ quoting context text in your response since it must not be part of the answer.
 PROMPT = ChatPromptTemplate.from_template(TEMPLATE)
 
 # set up simple chat history
-contextualize_q_system_prompt = (
-    "Given a chat history and the latest user question "
-    "which might reference context in the chat history, "
-    "formulate a standalone question which can be understood "
-    "without the chat history. Do NOT answer the question, "
-    "just reformulate it if needed and otherwise return it as is."
-)
+contextualize_q_system_prompt = ("""
+Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. 
+
+Be aware that the lastest user question may not reference context in the chat history at all, and may be about an entirely new topic.
+
+Do NOT answer the question, just reformulate it if needed and otherwise return it as is.
+""")
 
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
@@ -93,36 +95,39 @@ history_aware_retriever = create_history_aware_retriever(llm, retriever, context
 # create retreiver and llm chains
 llm_chain = create_stuff_documents_chain(llm, PROMPT)
 #retrieval_chain = create_retrieval_chain(retriever, llm_chain)
-retrieval_chain = create_retrieval_chain(history_aware_retriever, llm_chain)
+history_aware_retrieval_chain = create_retrieval_chain(history_aware_retriever, llm_chain)
 
 store = {}
 
+class InMemoryHistory(BaseChatMessageHistory, BaseModel):
+    messages: list[BaseMessage] = Field(default_factory=list)
+
+    def add_messages(self, messages: list[BaseMessage]) -> None:
+        self.messages.extend(messages)
+        last_k = 5
+        if len(self.messages) > last_k:
+            self.messages = self.messages[-last_k:]
+
+    def clear(self) -> None:
+        self.messages = []
+
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in store:
-        store[session_id] = ChatMessageHistory()
+#        store[session_id] = ChatMessageHistory()
+        store[session_id] = InMemoryHistory()
     return store[session_id]
 
+def clear_memory(session_id: str):
+    del store[session_id]
+    return "Successful"
+
 conversational_retrieval_chain = RunnableWithMessageHistory(
-    retrieval_chain,
+    history_aware_retrieval_chain,
     get_session_history,
     input_messages_key="input",
     history_messages_key="chat_history",
     output_messages_key="answer",
 )
-
-# core functions
-#def store_document(documents: list[Document]) -> str:
-#    chroma.add_documents(documents=documents)
-#    return "document stored successfully"
-#
-#parser = PyPDFParser()
-#
-#def parse_pdf(file_content: bytes) -> list[Document]:
-#    blob = Blob(data=file_content)
-#    return [doc for doc in parser.lazy_parse(blob)]
-
-def retrieve_document(query: str) -> list[Document]:
-    return history_aware_retriever.invoke(input=query)
 
 def ask_question(query: str, session_id: str) -> str:
     response = conversational_retrieval_chain.invoke({"input": query}, config={"configurable":{"session_id": session_id}})

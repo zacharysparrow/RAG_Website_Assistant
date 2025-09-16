@@ -14,6 +14,12 @@ def ask(query: str, session_id: str) -> str:
     else:
         return "I couldn't find an answer to your question."
 
+def reset_history(session_id: str):
+    with st.spinner("Resetting the chat..."):
+        status = requests.get(f"{API_URL}/reset_history")
+    if status == "Successful":
+        return "Reset successfull"
+    
 # set up streamlit page
 API_URL = "http://localhost:8000"  # Change if deploying elsewhere
 st.set_page_config(page_title="Chatbot", page_icon="🤖")
@@ -62,9 +68,11 @@ if query:
                 seen_sources.add(t)
                 filtered_sources.append(d)
 
-        if filtered_sources != []:
+        if filtered_sources != [] and "I couldn't find an answer to your question." not in answer:
             st.write("Relevant work:")
             for source in filtered_sources:
                 st.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
+    if st.button("Reset Session"):
+        reset_history(session_id)
 
