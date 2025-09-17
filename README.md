@@ -16,7 +16,6 @@ chatbot_rag_env
 
 TODO:
 optimize chunking
-refine markdown
 add sldf paper when published
 add boxes paper when on arxiv
 fill out chromadb with:

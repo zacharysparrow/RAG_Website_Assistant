@@ -11,6 +11,7 @@ from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 from langchain_text_splitters import MarkdownHeaderTextSplitter
+from langchain_community.document_loaders import UnstructuredMarkdownLoader
 
 import time
 import logging
@@ -50,13 +51,13 @@ def store_document(documents: list[Document]) -> str:
 
 documents = []
 docs_path = (
-    "./documents"
+    "./documents/markdown"
 )
 
-pdf_files = []
+md_files = []
 for filename in os.listdir(docs_path):
-    if filename.endswith('.pdf'):
-        pdf_files.append(os.path.join(docs_path, filename))
+    if filename.endswith('.md'):
+        md_files.append(os.path.join(docs_path, filename))
 
 headers_to_split_on = [
     ("#", "Header 1"),
@@ -65,12 +66,13 @@ headers_to_split_on = [
 ]
 
 # checking for duplicate file names and adding
-for doc in pdf_files:
-    loader = PyMuPDF4LLMLoader(
-        file_path=doc,
-        mode="single",
-        pages_delimiter=" "
-    )    
+for doc in md_files:
+#    loader = PyMuPDF4LLMLoader(
+#        file_path=doc,
+#        mode="single",
+#        pages_delimiter=" "
+#    )    
+    loader = UnstructuredMarkdownLoader(doc, mode="single")
     content = loader.load()[0] #content isn't being loaded with headers
 
     if doc not in loaded_doc_names: 
