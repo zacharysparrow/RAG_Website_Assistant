@@ -38,7 +38,7 @@ chroma = Chroma(
     persist_directory="./data",
     embedding_function=embeddings,
 )
-retriever = chroma.as_retriever(search_kwargs={"k": 3})  # Retrieve top 3 relevant docs
+retriever = chroma.as_retriever(search_kwargs={"k": 9})  # Retrieve top 3 relevant docs
 
 # set up prompt template
 TEMPLATE = """

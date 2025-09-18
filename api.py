@@ -84,16 +84,20 @@ def ask(query: str, session_id: str) -> AskResponse:
         sources = []
         for source in context:
             try:
-                doi = source.metadata["prism:doi"]
+                doi = source.metadata["doi"]
             except:
                 doi = None
             try:
                 authors = source.metadata["author"]
-                title = source.metadata["title"]
-                subject = source.metadata["subject"]
             except:
                 authors = None
+            try:
+                title = source.metadata["title"]
+            except:
                 title = None
+            try:
+                subject = source.metadata["subject"]
+            except:
                 subject = None
             sources.append({"title": title, "doi": doi, "authors": authors, "subject": subject})
 
