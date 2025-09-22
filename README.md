@@ -1,4 +1,4 @@
-# Retrieval-Augmented Generation (RAG) Website Assistant Chatbot
+# Retrieval-Augmented Generation (RAG) Website AI Agent
 
 RAG chatbot made to answer questions about me and my work. 
 
@@ -15,18 +15,16 @@ PDF -> markdown done with https://www.datalab.to/playground
 chatbot_rag_env
 
 TODO:
+documents:
 add sldf paper when published
 add boxes paper when on arxiv/published
-fill out chromadb with:
-- my website (update automatically?)
-- my CV
-- answers to common interview questions
-not getting full context for questions.
-possible issue with assuming ambiguious context. Need to test more later.
-catch exceeded quota error and give user try again later message
+fill out zach_info.md with answers to common interview questions
+
+RAG system:
+tune prompt to make AI more willing to search
+
+Other:
 switch to better model after all features implemented
 host on aws
 embed in website
 
-Example:
-https://github.com/mahdjourOussama/python-learning/tree/master/chatbot-rag

@@ -74,29 +74,29 @@ def read_root():
 
 @app.get("/reset_history")
 def reset_history(session_id: str):
-    status = clear_memory()
+    status = clear_memory(session_id)
     return status
 
 @app.get("/ask")
 def ask(query: str, session_id: str) -> AskResponse:
     try:
-        answer, context = ask_question(query, session_id)
+        answer, context, history = ask_question(query, session_id)
         sources = []
         for source in context:
             try:
-                doi = source.metadata["doi"]
+                doi = source["doi"]
             except:
                 doi = None
             try:
-                authors = source.metadata["author"]
+                authors = source["author"]
             except:
                 authors = None
             try:
-                title = source.metadata["title"]
+                title = source["title"]
             except:
                 title = None
             try:
-                subject = source.metadata["subject"]
+                subject = source["subject"]
             except:
                 subject = None
             sources.append({"title": title, "doi": doi, "authors": authors, "subject": subject})

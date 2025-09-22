@@ -16,7 +16,7 @@ def ask(query: str, session_id: str) -> str:
 
 def reset_history(session_id: str):
     with st.spinner("Resetting the chat..."):
-        status = requests.get(f"{API_URL}/reset_history")
+        status = requests.get(f"{API_URL}/reset_history?session_id={session_id}")
     if status == "Successful":
         return "Reset successfull"
     
@@ -50,12 +50,17 @@ st.title("Zach's Personal AI Assistant")
 with st.chat_message(name="ai", avatar="ai"):
     st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
 
-query = st.chat_input(placeholder="Type your question here...")
+query = st.chat_input(placeholder='''Type your question here... e.g., "Why should I hire Zach?"''')
 
 if query:
     with st.chat_message("user"):
         st.write(query)
-    answer, sources = ask(query, session_id)
+    try:
+        answer, sources = ask(query, session_id)
+    except:
+        answer = "We're experiencing higher traffic than normal. Please try again later."
+        sources = None
+
     with st.chat_message("ai"):
         st.write(answer)
 
@@ -73,6 +78,6 @@ if query:
             for source in filtered_sources:
                 st.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
-    if st.button("Reset Session"):
-        reset_history(session_id)
+if st.button("Reset Session"):
+    reset_history(session_id)
 

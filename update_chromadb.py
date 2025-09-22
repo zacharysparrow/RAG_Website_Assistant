@@ -44,14 +44,22 @@ def store_document(documents: list[Document]) -> str:
     return "document stored successfully"
 
 documents = []
-docs_path = (
-    "./documents/markdown"
-)
+docs_path = "./documents/markdown"
 
 md_files = []
 for filename in os.listdir(docs_path):
     if filename.endswith('.md'):
         md_files.append(os.path.join(docs_path, filename))
+
+website_path = "../../zacharysparrow.github.io/"
+site_sections = ["_misc", "_pages", "_projects"]
+site_paths = []
+for s in site_sections:
+    site_paths.append(website_path + s)
+
+for section in site_paths:
+    for filename in os.listdir(section):
+        md_files.append(os.path.join(section, filename))
 
 headers_to_split_on = [
     ("#", "Header 1"),
@@ -64,14 +72,43 @@ headers_to_split_on = [
 with open('documents/metadata.json', 'r') as f:
     json_file = json.load(f)
 
+force_website_update = False
+force_info_update = False
+
 for doc in md_files:
+    print(doc)
+    force_update = False
     loader = UnstructuredMarkdownLoader(doc, mode="single")
     content = loader.load()[0] #content isn't being loaded with headers
     json_string = doc.split("/")[-1].replace(".md","")
-    doc_metadata = json_file[json_string]
-    doc_metadata["source"] = json_string
 
-    if doc_metadata["source"] not in loaded_doc_names: 
+    try:
+        doc_metadata = json_file[json_string]
+        doc_metadata["source"] = json_string
+
+    except:
+        if "zacharysparrow.github.io" in doc: #if website
+            doi = "zacharysparrow.github.io" + doc.split("zacharysparrow.github.io")[-1].replace("_", "")
+            author = "Zachary M. Sparrow"
+            tag = "web"
+            force_update = force_website_update
+
+        else: #everything else is the cv tag
+            doi = None
+            author = None
+            tag = "cv"
+
+        doc_metadata = {
+            "author":author,
+            "doi":doi,
+            "source":json_string,
+            "tag":tag
+            }
+
+    if doc_metadata["source"] == "zach_info":
+        force_update = force_info_update
+
+    if doc_metadata["source"] not in loaded_doc_names or force_update: 
         tic = time.time()
         print(f"Adding {doc}...")
 
