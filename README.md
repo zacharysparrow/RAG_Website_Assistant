@@ -21,7 +21,6 @@ add boxes paper when on arxiv/published
 fill out zach_info.md with answers to common interview questions
 
 RAG system:
-tune prompt to make AI more willing to search
 
 Other:
 switch to better model after all features implemented

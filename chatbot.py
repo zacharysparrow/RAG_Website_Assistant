@@ -24,7 +24,7 @@ import logging
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools.simple import Tool
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import ToolMessage, HumanMessage
 from langchain_core.messages.utils import trim_messages, count_tokens_approximately
 #from langchain.tools.retriever import create_retriever_tool
 from langchain.agents import AgentExecutor
@@ -42,8 +42,8 @@ if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not set")
 
 embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", task_type="QUESTION_ANSWERING", google_api_key=GEMINI_API_KEY)
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", temperature=0, google_api_key=GEMINI_API_KEY)
-#llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0, google_api_key=GEMINI_API_KEY)
+#llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", temperature=0, google_api_key=GEMINI_API_KEY)
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, google_api_key=GEMINI_API_KEY)
 
 # set up chroma vector database
 chroma = Chroma(
@@ -63,34 +63,27 @@ cv_retriever = chroma.as_retriever(search_type="similarity_score_threshold", sea
 #{context}
 #</context>
 TEMPLATE = """
-Here is a question/prompt that must be answered, possibly with the context provided by a tool:
-
-<question>
-{messages}
-</question>
-
 You are Zachary Sparrow's (Zach) AI assistant designed to answer questions from hiring managers and recruiters about Zach's professional history, experience, and skills.
-Your ultimate goal is to convince the hiring manager or recruiter to give Zach an interview or a job.
-The given context contains excerpts from Zach's peer reviewed publications, personal website, and CV.
+You are currently talking with a hiring manager or recruiter. Your goal is to convince them to give Zach an interview or a job.
 
-Please read through the provided context carefully. Then, analyze the question and attempt to find a
-direct answer to the question within the context.
+The provided tools can be used to search Zach's CV, frequently asked questions, personal website (which contains information on personal projects, hobbies, etc.), and Zach's published peer review papers.
+If needed, use the provided tools to gather information related to responding to the given question, prompt, or query.
 
-If you are able to find a direct answer, provide it and elaborate on relevant points from the
-context using bullet points "-".
+Please use concise but complete answers, using bullet points "-" to organize your response only if needed.
 
-If you cannot find a direct answer based on the provided context, outline the most relevant points
-that give hints to the answer of the question.
+Output your response in plain text without using tags and ensure you are not quoting context text in your response.
 
-If you are not given relevant context, converse naturally and prompt the user to ask about Zach.
-Never include any indication that you don't have the context in your response.
+Here is the question:
 
-Output your response in plain text without using the tags <answer> and </answer> and ensure you are not
-quoting context text in your response since it must not be part of the answer.
-
-If somebody asks who you are, state that you are Zachary Sparrow's Personal AI assistant without any additional text.
+<messages>
+{messages}
+</messages>
 """
 PROMPT = ChatPromptTemplate.from_template(TEMPLATE)
+
+#If you do not know how to answer a question, first ensure that you have exhausted the available tools. If the provided tools do not return relevant context, reply by stating:
+#
+#I couldn't find an answer to your question.
 
 ## set up simple chat history
 #contextualize_q_system_prompt = ("""
@@ -190,7 +183,7 @@ def create_retriever_tool(retriever, name: str, description: str) -> Tool:
 sci_tool = create_retriever_tool(
     sci_retriever,
     "scientific_paper_retriever",
-    "Searches and returns excerpts from Zach's peer-reviewed scientific papers."
+    "Searches and returns excerpts from Zach's peer-reviewed scientific papers. Topics include: PEPPr, CASE21, Chemistry, Physics, machine learning, algorithms."
 )
 
 web_tool = create_retriever_tool(
@@ -234,11 +227,16 @@ conversational_agent = create_react_agent(llm, tools, prompt=PROMPT, checkpointe
 def ask_question(query: str, session_id: str) -> str:
     response = conversational_agent.invoke({"messages": [query]}, config={"configurable":{"thread_id": session_id}})
 #    response = conversational_agent.invoke({"messages": [query]})
+
     sources = []
     for r in response["messages"]:
         if isinstance(r, ToolMessage):
             curr_metadata = literal_eval(r.content)["metadata"]
             sources.append([dict(zip(curr_metadata,t)) for t in zip(*curr_metadata.values())])
+        if isinstance(r, HumanMessage):
+            sources = [] #only want sources relevant to most recent human message
+
     return_sources = [x for xs in sources for x in xs]
+    print(return_sources)
 #    response = conversational_retrieval_chain.invoke({"input": query}, config={"configurable":{"session_id": session_id}})
     return (response["messages"][-1].content, return_sources, None)

@@ -58,7 +58,7 @@ if query:
     try:
         answer, sources = ask(query, session_id)
     except:
-        answer = "We're experiencing higher traffic than normal. Please try again later."
+        answer = "I've run into an issue. Please try again later!"
         sources = None
 
     with st.chat_message("ai"):

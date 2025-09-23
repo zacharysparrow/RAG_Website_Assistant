@@ -19,7 +19,7 @@
 ### Postdoctoral Research Associate
 - Cornell University, Ithaca, NY
 - May 2023 -- Present
-- Engineered machine learning pipeline to guide the design and recycling of plastics with enhanced properties, resulting in publication in a top-tier chemistry journal
+- Engineered machine learning pipeline to guide the design and recycling of plastics with enhanced properties, resulting in publication in a top-tier chemistry journal (Related model: PEPPr)
 - Uncovered two novel fundamental water diffusion mechanisms using deep learning molecular dynamics, submitted to top-tier scientific journal
 - Derived manifold-constrained influence functions to further understanding of physically constrained ML models for electron-electron interactions
 - Established training data cleaning process to improve the accuracy and reliability of quantum chemical models by 12% in real-world chemical applications
@@ -30,7 +30,7 @@ technique that decomposes model error into physically meaningful components
 ### Graduate Research Assistant
 - Cornell University, Ithaca, NY
 - August 2017 -- May 2023
-- Established first general technique to incorporate physical constraints into the most widely used class of empirical quantum chemical models
+- Established first general technique to incorporate physical constraints into the most widely used class of empirical quantum chemical models (Related model: CASE21)
 - Designed, built, and analyzed two benchmark-quality quantum chemical databases, resulting in a new error analysis framework and a publication selected as editor’s choice of 2021
 - Developed an efficient black box algorithm to evaluate common quantum chemical approximations >100× faster for systems orders of magnitude larger than previously possible
 
