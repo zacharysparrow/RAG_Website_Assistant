@@ -1,0 +1,8 @@
+Package,Total size [MB],Total size [bytes],Visualisation
+langchain-chroma,409.2 MB,429112080,################
+streamlit,377.2 MB,395503481,###############
+langchain-google-genai,87.2 MB,91392270,###
+fastapi[standard],59.3 MB,62156032,##
+langgraph,51.0 MB,53445713,##
+langchain-core,47.3 MB,49588504,##
+python-dotenv,0.1 MB,104261,

@@ -21,9 +21,12 @@ def reset_history(session_id: str):
         return "Reset successfull"
     
 # set up streamlit page
-API_URL = "http://localhost:8000"  # Change if deploying elsewhere
+#API_URL = "http://localhost:8000"  # Change if deploying elsewhere
+API_URL = "https://rag-website-assistant.onrender.com"
 st.set_page_config(page_title="Chatbot", page_icon="🤖")
 st.title("Zach's Personal AI Assistant")
+
+reset_history(session_id)
 
 # chat interface
 with st.chat_message(name="ai", avatar="ai"):

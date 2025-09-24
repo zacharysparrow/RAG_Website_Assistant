@@ -1,6 +1,7 @@
 .env
 documents/pdfs/
 data/
+documents/
 hold_documents/
 hold_data/
 hold*
