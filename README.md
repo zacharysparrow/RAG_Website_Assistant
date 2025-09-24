@@ -16,18 +16,15 @@ PDF -> markdown done with https://www.datalab.to/playground
 
 chatbot_rag_env
 
+Hosting fastAPI and small chromadb on render.com
+Hosting streamlit frontend on community cloud
+
 TODO:
-clean up .py files
-make sure requirements.txt is complete
-host api somewhere (including database calls)
-configure app to use new api
-embed in website
+Chat history doesn't seem to work on server
 
 documents:
 add sldf paper when published
 add boxes paper when on arxiv/published
 fill out zach_info.md with answers to common interview questions
-
-RAG system:
 
 

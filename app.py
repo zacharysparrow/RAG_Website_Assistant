@@ -15,7 +15,7 @@ def ask(query: str, session_id: str) -> str:
         return "I couldn't find an answer to your question."
 
 def reset_history(session_id: str):
-    with st.spinner("Resetting the chat..."):
+    with st.spinner("Setting up the chat..."):
         status = requests.get(f"{API_URL}/reset_history?session_id={session_id}")
     if status == "Successful":
         return "Reset successfull"
@@ -55,11 +55,10 @@ if query:
                 seen_sources.add(t)
                 filtered_sources.append(d)
 
-        if filtered_sources != [] and "I couldn't find an answer to your question." not in answer:
-            st.write("Relevant work:")
+        if filtered_sources != []:
+            expander = st.expander("Relevant work:")
             for source in filtered_sources:
-                st.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
+                expander.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
 if st.button("Reset Session"):
     reset_history(session_id)
-
