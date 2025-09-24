@@ -5,4 +5,5 @@ hold_documents/
 hold_data/
 hold*
 .toml
-.streamlit/
+.streamlit/secrets*
+*secrets*

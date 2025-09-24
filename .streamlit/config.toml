@@ -1,0 +1,10 @@
+[theme]
+primaryColor = "#343434"
+backgroundColor = "#f3f3f3"
+textColor = "#343434"
+linkColor = "#8e8b82"
+borderColor = "#343434"
+secondaryBackgroundColor = "#e9dcbe"
+linkUnderline = true
+baseRadius = "1rem"
+showWidgetBorder = false
