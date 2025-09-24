@@ -1,7 +1,0 @@
-{
-    "functions": {
-        "*": {
-            "excludeFiles": "{documents, LICENSE, README.md, app.py, update_chromadb.py}"
-        }
-    }
-}
