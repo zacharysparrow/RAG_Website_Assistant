@@ -23,7 +23,6 @@ fill out zach_info.md with answers to common interview questions
 RAG system:
 
 Other:
-switch to better model after all features implemented
-host on aws
+host
 embed in website
 

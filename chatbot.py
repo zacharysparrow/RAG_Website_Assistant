@@ -1,4 +1,5 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv, find_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
@@ -36,7 +37,8 @@ logger = logging.getLogger(__name__)
 
 # set up API key and models
 load_dotenv(find_dotenv())
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+#GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 if not GEMINI_API_KEY:
     logger.error("GEMINI_API_KEY is not set")
     raise ValueError("GEMINI_API_KEY is not set")

@@ -4,3 +4,5 @@ data/
 hold_documents/
 hold_data/
 hold*
+.toml
+.streamlit/
