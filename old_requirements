@@ -1,8 +1,9 @@
 fastapi[standard]
 langchain-google-genai
 langchain-chroma
+langchain 
 langchain-core
-langgraph
+langchain-community
 streamlit
 python-dotenv
 

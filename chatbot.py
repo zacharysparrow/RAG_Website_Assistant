@@ -6,7 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.messages import BaseMessage, ToolMessage, HumanMessage
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents.base import Document
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
