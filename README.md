@@ -1,4 +1,6 @@
 # Retrieval-Augmented Generation (RAG) Website AI Agent
+clean up .py files
+make sure requirements.txt is complete
 
 RAG chatbot made to answer questions about me and my work. 
 
@@ -15,6 +17,12 @@ PDF -> markdown done with https://www.datalab.to/playground
 chatbot_rag_env
 
 TODO:
+clean up .py files
+make sure requirements.txt is complete
+host api somewhere (including database calls)
+configure app to use new api
+embed in website
+
 documents:
 add sldf paper when published
 add boxes paper when on arxiv/published
@@ -22,7 +30,4 @@ fill out zach_info.md with answers to common interview questions
 
 RAG system:
 
-Other:
-host
-embed in website
 

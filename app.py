@@ -25,28 +25,7 @@ API_URL = "http://localhost:8000"  # Change if deploying elsewhere
 st.set_page_config(page_title="Chatbot", page_icon="🤖")
 st.title("Zach's Personal AI Assistant")
 
-## file upload and document storage
-#uploaded_files = st.file_uploader(
-#    "Upload your PDF documents", type="pdf", accept_multiple_files=True
-#)
-#if uploaded_files:
-#    files = [
-#        ("files", (file.name, file.getvalue(), "application/pdf"))
-#        for file in uploaded_files
-#    ]
-#    try:
-#        with st.spinner("Uploading files..."):
-#            response = requests.post(f"{API_URL}/documents/", files=files)
-#        if response.status_code == 200:
-#            st.success("Files uploaded successfully")
-#            uploaded_files = None
-#        else:
-#            st.error("Failed to upload files")
-#    except Exception as e:
-#        st.error(f"Error uploading files: {e}")
-
 # chat interface
-
 with st.chat_message(name="ai", avatar="ai"):
     st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
 
