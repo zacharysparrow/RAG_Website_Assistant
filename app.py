@@ -1,9 +1,13 @@
+import os
+from dotenv import load_dotenv, find_dotenv
 import streamlit as st
 import requests
 from streamlit.runtime.scriptrunner import get_script_run_ctx
+import logging
 
-#ctx = get_script_run_ctx()
-#session_id = ctx.session_id
+# error loggings
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def ask(query: str, session_id: str) -> str:
     with st.spinner("Asking the chatbot..."):
@@ -17,19 +21,22 @@ def ask(query: str, session_id: str) -> str:
 def reset_history(session_id: str):
     with st.spinner("Setting up the chat..."):
         status = requests.get(f"{API_URL}/reset_history?session_id={session_id}")
-    if status == "Successful":
+    if status == "successful":
         return "Reset successfull"
     
 # set up streamlit page
-#API_URL = "http://localhost:8000"  # Change if deploying elsewhere
-API_URL = "https://rag-website-assistant.onrender.com"
+load_dotenv(find_dotenv())
+API_URL = os.getenv("API_URL")
+if not API_URL:
+    logger.error("API_URL is not set")
+    raise ValueError("API_URL is not set")
+
 st.set_page_config(page_title="Chatbot", page_icon="🤖")
 st.title("Zach's Personal AI Assistant")
 
 if "initialized" not in st.session_state or not st.session_state.initialized:
     ctx = get_script_run_ctx()
     st.session_state.session_id = ctx.session_id
-#    reset_history(st.session_state.session_id)
     st.session_state.initialized = True
     with st.chat_message(name="ai", avatar="ai"):
         st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
@@ -64,7 +71,7 @@ if query:
                 expander.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
 if st.button("Reset Session", key="button"):
-    reset_history(st.session_state.session_id)
+    status = reset_history(st.session_state.session_id)
     st.session_state.initialized = False
     query = None
     del st.session_state["button"]

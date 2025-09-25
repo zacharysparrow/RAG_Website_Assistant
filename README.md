@@ -19,14 +19,14 @@ Agentic RAG chatbot made to answer questions about me and my work.
 - For development, start the FastAPI with ```fastapi dev api.py``` and the streamlit app with ```streamlit run app.py```.
 
 ## Hosting
-The streamlit frontend and FastAPI must be hosted seperately. I used render.com's free hobby tier to host the chatbot API, and the streamlit front end is hosted on streamlit community cloud, also for free. One of the benefits of using render to host the API is render's traditional server deployment, which allows for chat history management in memory. In contrast, a serverless deployment will require a persistent implementation of chat message history by maintaining e.g. a Postgres database.
+The streamlit frontend and FastAPI must be hosted seperately. I used render.com's free hobby tier to host the chatbot API, and the streamlit front end is hosted on streamlit community cloud, also for free. One of the benefits of using render to host the API is render's traditional server deployment, which allows for chat history management in memory. In contrast, a serverless deployment will require a persistent implementation of chat message history by maintaining e.g. a Postgres database. You'll need to set the ```API_URL``` in your .env file.
 
 ## License
 Distributed under the MIT License. See ```LICENSE``` for more information.
 
 ## TODO
-add sldf paper when published
-add boxes paper when on arxiv/published
-fill out zach_info.md with answers to common interview questions
-info on how the chatbot was made
+- add sldf paper when published
+- add boxes paper when on arxiv/published
+- fill out zach_info.md with answers to common interview questions
+- info on how the chatbot was made
 
