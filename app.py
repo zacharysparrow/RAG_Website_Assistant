@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
-ctx = get_script_run_ctx()
-session_id = ctx.session_id
+#ctx = get_script_run_ctx()
+#session_id = ctx.session_id
 
 def ask(query: str, session_id: str) -> str:
     with st.spinner("Asking the chatbot..."):
@@ -26,11 +26,13 @@ API_URL = "https://rag-website-assistant.onrender.com"
 st.set_page_config(page_title="Chatbot", page_icon="🤖")
 st.title("Zach's Personal AI Assistant")
 
-reset_history(session_id)
-
-# chat interface
-with st.chat_message(name="ai", avatar="ai"):
-    st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
+if "initialized" not in st.session_state or not st.session_state.initialized:
+    ctx = get_script_run_ctx()
+    st.session_state.session_id = ctx.session_id
+    reset_history(st.session_state.session_id)
+    st.session_state.initialized = True
+    with st.chat_message(name="ai", avatar="ai"):
+        st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
 
 query = st.chat_input(placeholder='''Type your question here... e.g., "Why should I hire Zach?"''')
 
@@ -38,10 +40,11 @@ if query:
     with st.chat_message("user"):
         st.write(query)
     try:
-        answer, sources = ask(query, session_id)
+        answer, sources = ask(query, st.session_state.session_id)
     except:
         answer = "I've run into an issue. Please try again later!"
         sources = None
+        pass
 
     with st.chat_message("ai"):
         st.write(answer)
@@ -60,5 +63,8 @@ if query:
             for source in filtered_sources:
                 expander.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
-if st.button("Reset Session"):
-    reset_history(session_id)
+if st.button("Reset Session", key="button"):
+    st.session_state.initialized = False
+    query = None
+    del st.session_state["button"]
+    st.rerun()

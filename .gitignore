@@ -7,3 +7,4 @@ hold*
 .toml
 .streamlit/secrets*
 *secrets*
+*.scss
