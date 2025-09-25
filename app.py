@@ -38,6 +38,7 @@ if "initialized" not in st.session_state or not st.session_state.initialized:
     ctx = get_script_run_ctx()
     st.session_state.session_id = ctx.session_id
     st.session_state.initialized = True
+    status = reset_history(st.session_state.session_id)
     with st.chat_message(name="ai", avatar="ai"):
         st.write("Hello! I'm Zach's personal AI assistant. I can answer questions about Zach and his research, projects, and experience.")
 
@@ -71,7 +72,6 @@ if query:
                 expander.write("- :small[" + source["authors"] + ", *" + source["title"] + "*, " + source["subject"] + "\n https://doi.org/" + source["doi"] +"]")
 
 if st.button("Reset Session", key="button"):
-    status = reset_history(st.session_state.session_id)
     st.session_state.initialized = False
     query = None
     del st.session_state["button"]
