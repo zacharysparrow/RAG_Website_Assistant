@@ -16,11 +16,11 @@ PDF -> markdown done with https://www.datalab.to/playground
 chatbot_rag_env
 
 Hosting fastAPI and small chromadb on render.com
+ - one benefit of render is that we can use memory for chat history, can't for serverless hosting
 Hosting streamlit frontend on community cloud
 Automatically updated with push to github
 
 TODO:
-Chat history doesn't work on server -- need to store in database
 
 documents:
 add sldf paper when published
