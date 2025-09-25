@@ -1,9 +1,0 @@
-fastapi[standard]
-langchain-google-genai
-langchain-chroma
-langchain 
-langchain-core
-langchain-community
-streamlit
-python-dotenv
-
