@@ -24,14 +24,11 @@ logger = logging.getLogger(__name__)
 # set up API key and models
 load_dotenv(find_dotenv())
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-#GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-#GEMINI_API_KEY = secrets["GEMINI_API_KEY"]
 if not GEMINI_API_KEY:
     logger.error("GEMINI_API_KEY is not set")
     raise ValueError("GEMINI_API_KEY is not set")
 
 embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", task_type="QUESTION_ANSWERING", google_api_key=GEMINI_API_KEY)
-#llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", temperature=0, google_api_key=GEMINI_API_KEY)
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, google_api_key=GEMINI_API_KEY)
 
 # set up chroma vector database
@@ -41,9 +38,9 @@ chroma = Chroma(
     persist_directory="./data",
     embedding_function=embeddings,
 )
-sci_retriever = chroma.as_retriever(search_type="similarity_score_threshold", search_kwargs={"k":3, "score_threshold":0.0, "filter":{"tag":"science"}})  # Retrieve top k relevant docs
-web_retriever = chroma.as_retriever(search_type="similarity_score_threshold", search_kwargs={"k":3, "score_threshold":0.0, "filter":{"tag":"web"}})  # Retrieve top k relevant docs
-cv_retriever = chroma.as_retriever(search_type="similarity_score_threshold", search_kwargs={"k":3, "score_threshold":0.0, "filter":{"tag":"cv"}})  # Retrieve top k relevant docs
+sci_retriever = chroma.as_retriever(search_type="similarity_score_threshold", search_kwargs={"k":3, "score_threshold":0.0, "filter":{"tag":"science"}})  
+web_retriever = chroma.as_retriever(search_type="similarity_score_threshold", search_kwargs={"k":3, "score_threshold":0.0, "filter":{"tag":"web"}})  
+cv_retriever = chroma.as_retriever(search_type="similarity_score_threshold", search_kwargs={"k":3, "score_threshold":0.0, "filter":{"tag":"cv"}})  
 
 # set up prompt template
 TEMPLATE = """
