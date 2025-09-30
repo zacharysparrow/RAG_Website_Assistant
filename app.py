@@ -76,3 +76,6 @@ if st.button("Reset Session", key="button"):
     query = None
     del st.session_state["button"]
     st.rerun()
+
+with st._bottom:
+    st.markdown("How did I make this? Check out my [blog post](https://zacharysparrow.github.io/projects/rag_chatbot/)!")
