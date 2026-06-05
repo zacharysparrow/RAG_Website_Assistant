@@ -29,7 +29,7 @@ if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY is not set")
 
 embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", task_type="QUESTION_ANSWERING", google_api_key=GEMINI_API_KEY)
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, google_api_key=GEMINI_API_KEY)
+llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0, google_api_key=GEMINI_API_KEY)
 
 # set up chroma vector database
 chroma = Chroma(
